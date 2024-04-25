@@ -1,0 +1,44 @@
+import { useState, useEffect } from "react";
+
+export default function LoadMore({ url }) {
+  const [loading, setLoading] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [count, setCount] = useState([]);
+
+  async function fetchProducts(getUrl) {
+    try {
+      setLoading(true);
+      const response = await fetch(
+        `${getUrl}?limit=20&skip=${count === 0 ? 0 : count * 20}`
+      );
+      const result = await response.json();
+
+      if (result && result.products && result.products.length) {
+        setProducts(result.products);
+        setLoading(false);
+      }
+    } catch (e) {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (url !== "") fetchProducts(url);
+  });
+
+  if (loading) <div>Loading data.. please wait</div>;
+
+  return (
+    <div className="container">
+      {products && products.length > 0 ? (
+        products.map((productItem) => (
+          <div key={productItem.id} className="item">
+            <div className="title">{productItem.title}</div>
+          </div>
+        ))
+      ) : (
+        <div>No products</div>
+      )}
+    </div>
+  );
+}
