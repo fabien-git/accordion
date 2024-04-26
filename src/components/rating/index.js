@@ -24,7 +24,7 @@ const Index = ({ nbOfStars = 5 }) => {
 
   return (
     <div className="star-rating">
-      {[...Array(nbOfStars)].map((_, index) => {
+      {new Array(20).fill(undefined).map((_, index) => {
         const currentIndex = index + 1;
         const isActive = currentIndex <= (hover || rating);
         return (

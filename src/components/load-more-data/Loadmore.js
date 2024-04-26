@@ -1,44 +1,75 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import "./style.css";
 
 export default function LoadMore({ url }) {
-  const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState([]);
-  const [count, setCount] = useState([]);
+  const [count, setCount] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState(null);
+  const [disableButton, setdisableButton] = useState(false);
+  let flag = false;
 
-  async function fetchProducts(getUrl) {
+  async function fetchProducts() {
     try {
       setLoading(true);
       const response = await fetch(
-        `${getUrl}?limit=20&skip=${count === 0 ? 0 : count * 20}`
+        `https://dummyjson.com/products?limit=20&skip=${count === 0 ? 0 : count * 20}`
       );
       const result = await response.json();
 
       if (result && result.products && result.products.length) {
-        setProducts(result.products);
+        setProducts((prevData) => [...prevData, ...result.products]);
+        //setProducts(result.products);
+        console.log(result);
         setLoading(false);
       }
-    } catch (e) {
+    } catch (error) {
+      setErrorMsg(error.message);
       setLoading(false);
     }
   }
 
+  function handleClick() {
+    setCount(count + 1);
+  }
+
   useEffect(() => {
-    if (url !== "") fetchProducts(url);
+    if (flag === false) {
+      fetchProducts();
+    }
+    return () => (flag = true);
+  }, [count]);
+
+  useEffect(() => {
+    if (products && products.length >= 100) setdisableButton(true);
   });
 
-  if (loading) <div>Loading data.. please wait</div>;
+  if (loading) {
+    return <div>Products loading..please wait</div>;
+  }
+
+  if (errorMsg) {
+    return <div>An error occured.. {errorMsg}</div>;
+  }
 
   return (
     <div className="container">
       {products && products.length > 0 ? (
-        products.map((productItem) => (
-          <div key={productItem.id} className="item">
-            <div className="title">{productItem.title}</div>
+        products.map((productItem, index) => (
+          <div key={index} className="item">
+            {productItem.title} <br />
+            {productItem.id}
+            <br />
+            {index}
           </div>
         ))
       ) : (
-        <div>No products</div>
+        <div>no products...</div>
       )}
+      <button disabled={disableButton} onClick={handleClick}>
+        Load more
+      </button>
+      {disableButton ? <div>plus de 100 produits</div> : null}
     </div>
   );
 }

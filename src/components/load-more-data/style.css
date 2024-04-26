@@ -1,0 +1,15 @@
+.container{
+  width: 800px;
+  display: flex;
+  position: relative;
+  justify-content: center;
+  gap:2px;
+  flex-wrap: wrap;
+  margin: 0 auto;
+}
+
+.item{
+  width: 200px;
+  height: 200px;
+  border: 1px solid red;
+}
